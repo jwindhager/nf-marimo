@@ -1,0 +1,58 @@
+nextflow_process {
+
+    name "Test Process CELLPOSE_OMEZARR"
+    script "../main.nf"
+    process "CELLPOSE_OMEZARR"
+
+    tag "modules"
+    tag "modules_local"
+    tag "cellpose_omezarr"
+
+    test("idr0033A - remote url") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of([ [ id:'test' ], [], params.idr0033a_url ])
+                input[1] = 'Nuclei,Actin/Golgi/Membrane'
+                input[2] = []
+                """
+            }
+        }
+
+        then {
+            def zarr = path(process.out.zarr[0][1])
+            assertAll(
+                { assert process.success },
+                { assert zarr.resolve('zarr.json').exists() },
+                { assert zarr.resolve('labels/cellpose/zarr.json').exists() },
+                { assert zarr.resolve('labels/cellpose/0/zarr.json').exists() },
+                { assert snapshot(
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+    }
+
+    test("idr0033A - remote url - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.of([ [ id:'test' ], [], params.idr0033a_url ])
+                input[1] = 'Nuclei'
+                input[2] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+    }
+}

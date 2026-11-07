@@ -1,0 +1,133 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nf-marimo"
+version = "0.1.0.dev0"
+description = "Build nf-core pipelines using marimo"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Jonas Windhager", email = "jonas@windhager.io" }]
+requires-python = ">=3.13"
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+  "marimo>=0.25.2",
+  "anywidget>=0.11",
+  "traitlets>=5.16",
+  "pyyaml>=6.0.3",
+  "httpx>=0.28.1",
+  "typer>=0.28",
+  "nf-core>=4.2.1",
+]
+
+[project.scripts]
+nfm = "nf_marimo.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nf_marimo"]
+
+# ---------------------------------------------------------------- pixi
+[tool.pixi.workspace]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+
+[tool.pixi.dependencies]
+python = "3.13.*"
+openjdk = "25.*"
+nodejs = ">=24"  # only runs prettier (pinned in the pre-commit hook)
+
+# Nextflow (and nf-test) need a Unix shell: on Windows, run them inside WSL2
+[tool.pixi.target.unix.dependencies]
+nextflow = ">=26.10,<26.11"  # minor releases can change syntax/defaults
+nf-test = "0.9.*"
+
+# Intel macOS: PyPI no longer ships wheels for these, so take conda-forge binaries
+[tool.pixi.target.osx-64.dependencies]
+cryptography = "*"
+
+[tool.pixi.activation.env]
+# ignore ~/.local site-packages so only the locked environment is used
+PYTHONNOUSERSITE = "1"
+
+[tool.pixi.pypi-dependencies]
+nf-marimo = { path = ".", editable = true }
+
+[tool.pixi.feature.dev.pypi-dependencies]
+# linters pinned exactly: new releases can turn passing checks into failures
+ruff = "==0.17.4"
+pyrefly = "==1.4.1"
+pytest = ">=9.2"
+pre-commit = ">=4.7"
+jsonschema = ">=4.26"
+
+# example: OME-Zarr cell segmentation & quantification (examples/cellseg)
+[tool.pixi.feature.cellseg.pypi-dependencies]
+# analysis libraries pinned to a minor version for reproducible numbers
+ome-zarr = ">=0.21"
+numpy = "~=2.5.4"
+pandas = "~=3.1.1"
+matplotlib = ">=3.11"
+scanpy = { version = "~=1.12.5", extras = ["leiden"] }
+squidpy = "~=1.8.4"
+
+[tool.pixi.feature.cellseg.target.osx-64.dependencies]
+numba = "*"
+llvmlite = "*"
+
+# macOS (Intel + Apple Silicon): no pyproj wheels on PyPI (building needs PROJ)
+[tool.pixi.feature.cellseg.target.osx.dependencies]
+pyproj = "*"
+
+[tool.pixi.feature.cellseg.tasks]
+cellseg-edit = "marimo edit --watch examples/cellseg/omezarr_cellseg.py"
+cellseg-export = "nfm export examples/cellseg/omezarr_cellseg.py --outdir build/nf-cellseg --force --lint"
+cellseg-nf-test = { cmd = "nf-test test modules/local --profile docker", cwd = "examples/cellseg" }
+cellseg-test = "pytest examples/cellseg/tests"
+cellseg-build-containers = { cmd = "docker build -t nf-marimo/omezarr-tools:0.2.0 . && docker build -t nf-marimo/omezarr-tools:0.2.0-gpu --build-arg ENV_FILE=environment-gpu.yml --build-arg CUDA=13.0 .", cwd = "examples/cellseg/containers/omezarr-tools" }
+
+[tool.pixi.environments]
+default = { features = ["dev", "cellseg"], solve-group = "default" }
+prod = { features = [], solve-group = "default" }
+
+[tool.pixi.tasks]
+lint = "pre-commit run --all-files"
+fmt = "ruff format . && ruff check --fix ."
+typecheck = "pyrefly check"
+test = "pytest tests"
+
+# ---------------------------------------------------------------- tools
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["build", ".nfm", "examples/*/modules", "tests/fixtures"]
+
+[tool.ruff.lint]
+# PLW1514: always pass an explicit encoding (Windows defaults to the locale codepage)
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "PT", "PTH", "D", "PLW1514"]
+preview = true
+explicit-preview-rules = true
+# D203/D213 conflict with D211/D212; ruff drops them anyway, this just silences its warning
+ignore = ["D100", "D104", "D105", "D107", "D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"tests/fixtures/**" = ["D", "B018"]
+"examples/**" = ["D", "B018", "E501"]
+
+[tool.pyrefly]
+project-includes = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "examples/cellseg/tests"]
+addopts = "-ra --strict-markers"
+markers = ["integration: requires nextflow, docker and network"]
+
+[tool.marimo.runtime]
+# process cells run Nextflow: don't re-run them on every edit, nor run notebooks on startup
+on_cell_change = "lazy"
+auto_instantiate = false

@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "quantify_omezarr"
+description: Quantify per-object intensities and morphology (scikit-image regionprops) from an OME-Zarr v0.5 image and one of its label images into a CSV table
+keywords:
+  - quantification
+  - single-cell
+  - ome-zarr
+  - ngff
+  - regionprops
+tools:
+  - "scikit-image":
+      description: "Image processing in Python"
+      homepage: "https://scikit-image.org"
+      documentation: "https://scikit-image.org/docs/stable/"
+      tool_dev_url: "https://github.com/scikit-image/scikit-image"
+      doi: 10.7717/peerj.453
+      licence: ["BSD-3-Clause"]
+      identifier: biotools:scikit-image
+  - "ome-zarr":
+      description: "Implementation of next-generation file format (NGFF) specifications for storing bioimaging data in the cloud"
+      homepage: "https://github.com/ome/ome-zarr-py"
+      documentation: "https://ome-zarr.readthedocs.io"
+      tool_dev_url: "https://github.com/ome/ome-zarr-py"
+      licence: ["BSD-2-Clause"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - image:
+        type: directory
+        description: |
+          Local OME-Zarr v0.5 image containing `labels/<label_name>`.
+          Pass `[]` when the image is given as `image_url`.
+        ontologies: []
+    - image_url:
+        type: string
+        description: |
+          Remote OME-Zarr v0.5 image URI containing `labels/<label_name>`.
+          Pass `''` when the image is given as `image`.
+  - label_name:
+      type: string
+      description: Name of the label image under `labels/` to quantify
+output:
+  csv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - ${prefix}.csv:
+          type: file
+          description: |
+            regionprops table: one row per label (pixel units of the quantified level);
+            per-channel columns named after the channels, e.g. `intensity_mean-Nuclei`
+          pattern: "${prefix}.csv"
+          ontologies:
+            - edam: http://edamontology.org/format_3752 # CSV
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+topics:
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+authors:
+  - "@jwindhager"
+maintainers:
+  - "@jwindhager"

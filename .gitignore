@@ -1,0 +1,14 @@
+.pixi/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+build/
+.nfm/
+.nf-test/
+.nextflow*
+work/
+__marimo__/
+
+.nf-test.log

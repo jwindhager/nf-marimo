@@ -1,0 +1,54 @@
+name: "count"
+description: Count lines, words or characters of a (local or remote) text file
+keywords:
+  - text
+  - test
+  - fixture
+tools:
+  - "coreutils":
+      description: "GNU core utilities"
+      homepage: "https://www.gnu.org/software/coreutils/"
+      documentation: "https://www.gnu.org/software/coreutils/manual/"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: Groovy Map containing sample information, e.g. `[ id:'sample1' ]`
+    - text:
+        type: file
+        description: Local text file to stage. Pass `[]` when given as `text_url`.
+        ontologies: []
+    - text_url:
+        type: string
+        description: Remote text file URI. Pass `''` when given as `text`.
+  - mode:
+      type: string
+      description: wc mode, one of `l`, `w`, `c`
+output:
+  tsv:
+    - - meta:
+          type: map
+          description: Groovy Map containing sample information
+      - ${prefix}.tsv:
+          type: file
+          description: Count table
+          pattern: "${prefix}.tsv"
+          ontologies: []
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+topics:
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+authors:
+  - "@nf-marimo"

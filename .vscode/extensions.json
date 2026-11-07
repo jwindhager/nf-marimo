@@ -1,0 +1,5 @@
+{
+  "recommendations": ["ms-python.python", "charliermarsh.ruff", "meta.pyrefly"],
+  // this project type-checks with pyrefly, not mypy
+  "unwantedRecommendations": ["ms-python.mypy-type-checker"]
+}

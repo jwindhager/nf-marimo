@@ -1,0 +1,60 @@
+# Run with `pixi run lint`. Local hooks use the tools from the pixi environment, so their
+# versions match pixi.lock; remote hooks are pinned below (update with `pre-commit autoupdate`).
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        exclude: ^pixi\.lock$
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-json
+        exclude: ^(examples/.*\.nf\.test\.snap|\.vscode/.*)$
+      - id: check-toml
+      - id: check-yaml
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: trailing-whitespace
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.11.1
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check --fix --force-exclude
+        language: system
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+      - id: pyrefly
+        name: pyrefly
+        entry: pyrefly check
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: prettier
+        name: prettier
+        entry: npx --yes prettier@3.9.10 --write --ignore-unknown
+        language: system
+        types_or: [yaml, json, markdown, css, javascript]
+      - id: nextflow-lint
+        name: nextflow lint
+        entry: nextflow lint
+        language: system
+        files: \.nf$
+      - id: nf-core-meta-schema
+        name: nf-core meta.yml schema
+        entry: python scripts/check_meta_schema.py
+        language: system
+        files: modules/local/.*/meta\.yml$

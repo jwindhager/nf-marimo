@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      cellseg-integration:
+        description: Run the cellseg example end to end (builds its container; slow)
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          locked: true
+      - name: pre-commit (ruff, pyrefly, prettier, nextflow lint, ...)
+        run: pixi run lint
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          locked: true
+      - name: Unit tests (package and example, without Nextflow runs)
+        run: pixi run pytest -m "not integration"
+
+  cellseg-integration:
+    if: github.event_name == 'workflow_dispatch' && inputs.cellseg-integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          locked: true
+      - name: Build the module container (CPU)
+        run: docker build -t nf-marimo/omezarr-tools:0.2.0 examples/cellseg/containers/omezarr-tools
+      - name: End-to-end tests (Nextflow + Docker)
+        run: pixi run cellseg-test

@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_size = 4
+indent_style = space
+
+[*.{yml,yaml,json,css,js}]
+indent_size = 2
+
+[*.nf.test.snap]
+indent_size = unset
+
+[{pixi.lock,*.toml}]
+indent_size = unset
+
+[*.md]
+indent_size = unset

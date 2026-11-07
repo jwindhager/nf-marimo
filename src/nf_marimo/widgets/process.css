@@ -1,0 +1,92 @@
+.nfm-card {
+  font-family: var(--marimo-text-font, system-ui, sans-serif);
+  font-size: 13px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: inherit;
+}
+.nfm-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.nfm-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.nfm-module {
+  font-family: ui-monospace, monospace;
+  opacity: 0.7;
+}
+.nfm-badge {
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 11px;
+  border: 1px solid currentColor;
+}
+.nfm-idle {
+  color: #57606a;
+}
+.nfm-running {
+  color: #9a6700;
+}
+.nfm-done {
+  color: #1a7f37;
+}
+.nfm-failed {
+  color: #cf222e;
+}
+.nfm-run {
+  margin-left: auto;
+  padding: 3px 12px;
+  border-radius: 6px;
+  border: 1px solid #1a7f37;
+  background: #1f883d;
+  color: white;
+  cursor: pointer;
+}
+.nfm-run:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.nfm-desc {
+  margin: 4px 0 8px;
+  opacity: 0.8;
+}
+.nfm-card table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 4px 0;
+}
+.nfm-card td,
+.nfm-card th {
+  text-align: left;
+  padding: 2px 6px;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+}
+.nfm-card code,
+.nfm-card pre {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+.nfm-card pre {
+  white-space: pre-wrap;
+  margin: 0;
+}
+.nfm-log {
+  max-height: 220px;
+  overflow: auto;
+  background: rgba(127, 127, 127, 0.08);
+  padding: 6px;
+  border-radius: 6px;
+}
+.nfm-problem {
+  color: #cf222e;
+}
+.nfm-section {
+  font-weight: 600;
+  margin-top: 8px;
+}

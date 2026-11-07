@@ -1,0 +1,54 @@
+name: "upper"
+description: Upper-case a (local or remote) text file and append a suffix line
+keywords:
+  - text
+  - test
+  - fixture
+tools:
+  - "coreutils":
+      description: "GNU core utilities"
+      homepage: "https://www.gnu.org/software/coreutils/"
+      documentation: "https://www.gnu.org/software/coreutils/manual/"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: Groovy Map containing sample information, e.g. `[ id:'sample1' ]`
+    - text:
+        type: file
+        description: Local text file to stage. Pass `[]` when given as `text_url`.
+        ontologies: []
+    - text_url:
+        type: string
+        description: Remote text file URI. Pass `''` when given as `text`.
+  - suffix:
+      type: string
+      description: Line appended to the output
+output:
+  txt:
+    - - meta:
+          type: map
+          description: Groovy Map containing sample information
+      - ${prefix}.txt:
+          type: file
+          description: Upper-cased text
+          pattern: "${prefix}.txt"
+          ontologies: []
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+topics:
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+authors:
+  - "@nf-marimo"

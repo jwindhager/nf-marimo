@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "cellpose_omezarr"
+description: Segment cells in an OME-Zarr v0.5 image (local or remote) with Cellpose and write a self-contained OME-Zarr with the image and its labels
+keywords:
+  - segmentation
+  - cellpose
+  - ome-zarr
+  - ngff
+  - imaging
+tools:
+  - "cellpose":
+      description: "A generalist algorithm for cellular segmentation"
+      homepage: "https://github.com/MouseLand/cellpose"
+      documentation: "https://cellpose.readthedocs.io/en/latest/"
+      tool_dev_url: "https://github.com/MouseLand/cellpose"
+      doi: 10.1038/s41592-025-02595-5
+      licence: ["BSD-3-Clause"]
+      identifier: biotools:cellpose
+  - "ome-zarr":
+      description: "Implementation of next-generation file format (NGFF) specifications for storing bioimaging data in the cloud"
+      homepage: "https://github.com/ome/ome-zarr-py"
+      documentation: "https://ome-zarr.readthedocs.io"
+      tool_dev_url: "https://github.com/ome/ome-zarr-py"
+      licence: ["BSD-2-Clause"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - image:
+        type: directory
+        description: |
+          Local OME-Zarr v0.5 image (or bioformats2raw layout) to stage.
+          Pass `[]` when the image is given as `image_url`.
+        ontologies: []
+    - image_url:
+        type: string
+        description: |
+          Remote OME-Zarr v0.5 image URI (e.g. `https://...`, `s3://...`) read in place.
+          Pass `''` when the image is given as `image`.
+  - channels:
+      type: string
+      description: |
+        Comma-separated channel names (OMERO labels) used for segmentation,
+        e.g. nuclear and cytoplasmic channel
+  - model:
+      type: file
+      description: |
+        Optional custom Cellpose model file. Pass `[]` to use the default model (cpsam).
+      pattern: "*"
+      ontologies: []
+output:
+  zarr:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - ${prefix}.ome.zarr:
+          type: directory
+          description: OME-Zarr v0.5 image with the segmentation under `labels/<label_name>`
+          pattern: "${prefix}.ome.zarr"
+          ontologies: []
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+topics:
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+authors:
+  - "@jwindhager"
+maintainers:
+  - "@jwindhager"
